@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon compte{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8">
+                <h5 class="mb-3">Informations personnelles</h5>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">Pseudonyme :</div>
+                    <div class="col-sm-8">{{ user.pseudo }}</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">Email :</div>
+                    <div class="col-sm-8">
+                        <i class="fas fa-envelope me-2 text-muted"></i>
+                        {{ user.email }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-4">
+        <div class="row">
+            <div class="col-12">
+                <h5 class="mb-3">Actions</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ path('user_edit') }}" class="btn btn-primary">
+                        <i class="fas fa-edit me-2"></i>
+                        Modifier mon profil
+                    </a>
+
+                    <a href="{{ path('user_change_password') }}" class="btn btn-warning">
+                        <i class="fas fa-key me-2"></i>
+                        Changer mon mot de passe
+                    </a>
+
+                    <a href="{{ path('app_home') }}" class="btn btn-info">
+                        <i class="fas fa-comments me-2"></i>
+                        Retour à l'accueil
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comment me-2"></i>
+                        Mes commentaires récents
+                    </h5>
+                    {% if totalComments > 10 %}
+                        <small class="text-muted">{{ userComments|length }} sur {{ totalComments }}</small>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for comment in userComments %}
+                        <div class="list-group-item border-0 px-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="mb-2">
+                                        {{ comment.content|length > 150 ? comment.content|slice(0, 150) ~ '...' : comment.content }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
