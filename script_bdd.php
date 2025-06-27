@@ -89,8 +89,9 @@ foreach ($boards as $boardId) {
             $comment = str_replace('{tech}', $tech, $template);
             $commentDate = date('Y-m-d H:i:s', strtotime("+{$j} minutes"));
 
-            $stmt = $pdo->prepare("INSERT INTO comment (user_id, content, created_at) VALUES (?, ?, ?)");
-            $stmt->execute([$commentUserId, $comment, $commentDate]);
+            $stmt = $pdo->prepare("INSERT INTO comment (user_id, post_id, content, created_at) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$commentUserId, $postId, $comment, $commentDate]);
+
 
             $commentId = $pdo->lastInsertId();
 

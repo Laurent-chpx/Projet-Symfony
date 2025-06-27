@@ -32,6 +32,10 @@ class Comment
     #[ORM\OneToMany(targetEntity: File::class, mappedBy: 'comment')]
     private Collection $files;
 
+    #[ORM\ManyToOne(inversedBy: 'comments')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Post $post = null;
+
     public function __construct()
     {
         $this->files = new ArrayCollection();
@@ -104,6 +108,18 @@ class Comment
                 $file->setComment(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPost(): ?Post
+    {
+        return $this->post;
+    }
+
+    public function setPost(?Post $post): static
+    {
+        $this->post = $post;
 
         return $this;
     }
