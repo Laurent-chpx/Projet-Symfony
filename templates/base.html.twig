@@ -14,30 +14,30 @@
         {% endblock %}
     </head>
     <body>
-        {% block body %}
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container-fluid">
                 <a class="navbar-brand" href="{{ path('app_home') }}"> Accueil </a>
-                {% if not app.user %}
+{#                {% if not app.user %}#}
                     <a class="navbar-brand" href="">Connexion</a>
-                {% else %}
+{#                {% else %}#}
                         <a class="navbar-brand" href="">Déconnexion</a>
-                {% endif %}
+{#                {% endif %}#}
 
                 <a class="navbar-brand" href="">Catégories</a>
 
-                {% if app.user %}
+{#                {% if app.user %}#}
                     <a class="navbar-brand" href="">Mon compte</a>
                     <a class="navbar-brand" href="">Mes publications</a>
                     <a class="navbar-brand" href="">Mes messages</a>
-                 {% endif %}
+{#                 {% endif %}#}
 
-                {% if USER_ROLE =='ADMIN' %}
+{#                {% if USER_ROLE =='ADMIN' %}#}
                 <a class="navbar-brand" href="">Panneau de configuration</a>
-                {% endif %}
+{#                {% endif %}#}
             </div>
 
         </nav>
+        {% block body %}
         {% endblock %}
     </body>
 </html>
