@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -104,6 +104,35 @@ class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticate
         return $this;
     }
 
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
+
+    public function getRoles() : array{
+        $roles = ['ROLE_USER'];
+        if ($this->id_role) {
+            switch ($this->id_role->getId()) {
+                case 1: // INSIDER
+                    $roles[] = 'ROLE_INSIDER';
+                    break;
+                case 2: // COLLABORATOR
+                    $roles[] = 'ROLE_COLLABORATOR';
+                    break;
+                case 3: // EXTERNAL
+                    $roles[] = 'ROLE_EXTERNAL';
+                    break;
+                case 4: // ADMIN
+                    $roles[] = 'ROLE_ADMIN';
+                    break;
+            }
+        }
+        return $roles;
+    }
+
+    public function eraseCredentials(): void
+    {}
+
     /**
      * @return Collection<int, Post>
      */
@@ -142,6 +171,7 @@ class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticate
         return $this->comments;
     }
 
+
     public function addComment(Comment $comment): static
     {
         if (!$this->comments->contains($comment)) {
@@ -175,4 +205,5 @@ class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticate
 
         return $this;
     }
+
 }

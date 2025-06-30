@@ -19,25 +19,37 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class UserController extends AbstractController
 {
+    public function __construct(
+        private EntityManagerInterface $entityManager
+    ) {}
 
     #[Route('/inscription', name: 'app_user')]
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
     {
+        if ($this->getUser()) { //si connecté
+            return $this->redirectToRoute('app_home');
+        }
+
         $user = new User();
         $form =  $this->createForm(UserRegistrationForm::class, $user);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var string $password */
-            $password = $form->get('password')->get('first')->getData();
-            $user->setPassword($userPasswordHasher->hashPassword($user, $password));
+            try {
+                /** @var string $password */
+                $password = $form->get('password')->get('first')->getData();
+                $user->setPassword($userPasswordHasher->hashPassword($user, $password));
 
-            $this->assignRoleByMail($user, $entityManager);
+                $this->assignRoleByMail($user, $entityManager);
 
-            $entityManager->persist($user);
-            $entityManager->flush();
+                $entityManager->persist($user);
+                $entityManager->flush();
 
-            $this->addFlash('success', 'Votre compte a été créé avec succès !');
-            return $this->redirectToRoute('app_login');
+                $this->addFlash('success', 'Votre compte a été créé avec succès !');
+                return $this->redirectToRoute('app_login');
+
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Erreur lors de la création du compte : ' . $e->getMessage());
+            }
         }
         return $this->render('user/register.html.twig', [
             'UserRegistrationForm' => $form,
@@ -55,8 +67,8 @@ final class UserController extends AbstractController
             $roleId = 2; // COLLABORATION
         } elseif (str_ends_with($email, '@external.fr')) {
             $roleId = 3; // EXTERNE
-        } else {
-            $roleId = 'Erreur';
+        } elseif (str_ends_with($email, '@admin.fr')) {
+            $roleId = 4;
         }
 
         $role = $roleRepository->find($roleId);
