@@ -3,19 +3,23 @@
 {% block title %}Catégories{% endblock %}
 
 {% block body %}
-    <div class="container px-4 py-5" id="icon-grid"><h2 class="pb-2 border-bottom">Liste des catégories</h2>
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 py-5">
-        {% for categorie in categories %}
-            <div class="col d-flex align-items-start">
-                <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em"
-                     aria-hidden="true">
-                    <use xlink:href="#bootstrap"></use>
-                </svg>
-                <div><h3 class="fw-bold mb-0 fs-4 text-body-emphasis">{{ categorie.name }}</h3>
-                </div>
+    <div class="container">
+        {% for category in categories %}
+            <h2 class="mt-5 mb-3">{{ category.name }}</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for board in category.boards %}
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ board.name }}</h5>
+                                <p class="card-text">Quelques infos sur ce board…</p>
+                                <a href="{{ path('app_board_show', {id: board.id}) }}" class="btn btn-sm btn-primary">Voir</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
         {% endfor %}
-        </div>
     </div>
 
 {% endblock %}

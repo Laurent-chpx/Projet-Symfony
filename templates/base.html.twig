@@ -14,7 +14,7 @@
         {% endblock %}
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <nav class="navbar navbar-expand-lg bg-body-tertiary p-2">
             <div class="container-fluid">
                 <a class="navbar-brand" href="{{ path('app_home') }}"> Accueil </a>
 {#                {% if not app.user %}#}
@@ -23,7 +23,7 @@
                         <a class="navbar-brand" href="">Déconnexion</a>
 {#                {% endif %}#}
 
-                <a class="navbar-brand" href="">Catégories</a>
+                <a class="navbar-brand" href="{{ path('app_categories') }}">Catégories</a>
 
 {#                {% if app.user %}#}
                     <a class="navbar-brand" href="">Mon compte</a>
