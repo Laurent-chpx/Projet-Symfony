@@ -21,7 +21,7 @@ class UserEditForm extends AbstractType
             ->add('pseudo', TextType::class, [
                 'label' => 'Nom d\'utilisateur',
                 'attr' => [
-                    'class' => 'form-control',
+                    'class' => 'form-control mb-3',
                     'placeholder' => 'Entrez votre nom d\'utilisateur'
                 ],
                 'constraints' => [
@@ -37,7 +37,7 @@ class UserEditForm extends AbstractType
             ->add('email', EmailType::class, [
                 'label' => 'Adresse email',
                 'attr' => [
-                    'class' => 'form-control',
+                    'class' => 'form-control mb-3',
                     'placeholder' => 'exemple@insider.fr'
                 ],
                 'constraints' => [

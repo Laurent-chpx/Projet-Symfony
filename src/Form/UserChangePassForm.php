@@ -20,7 +20,7 @@ class UserChangePassForm extends AbstractType
         $builder
             ->add('currentPassword', PasswordType::class, [
                 'label' => 'Mot de passe actuel',
-                'attr' => ['class' => 'form-control'],
+                'attr' => ['class' => 'form-control mb-3'],
                 'mapped' => false,
                 'constraints' => [
                     new NotBlank(['message' => 'Veuillez saisir votre mot de passe actuel'])
@@ -32,11 +32,11 @@ class UserChangePassForm extends AbstractType
                 'invalid_message' => 'Les mots de passe doivent correspondre',
                 'first_options' => [
                     'label' => 'Nouveau mot de passe',
-                    'attr' => ['class' => 'form-control'],
+                    'attr' => ['class' => 'form-control mb-3'],
                 ],
                 'second_options' => [
                     'label' => 'Confirmer le nouveau mot de passe',
-                    'attr' => ['class' => 'form-control'],
+                    'attr' => ['class' => 'form-control mb-3'],
                 ],
                 'constraints' => [
                     new NotBlank(['message' => 'Veuillez remplir le nouveau mot de passe']),

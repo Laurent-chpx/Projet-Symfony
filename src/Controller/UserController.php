@@ -8,6 +8,7 @@ use App\Form\UserChangePassForm;
 use App\Form\UserRegistrationForm;
 use App\Form\UserEditForm;
 use App\Repository\CommentRepository;
+use App\Repository\PostRepository;
 use App\Repository\RoleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -82,7 +83,7 @@ final class UserController extends AbstractController
 
     #[Route('/profile', name: 'user_profile', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
-    public function profile(CommentRepository $messageList): Response
+    public function profile(CommentRepository $messageList, PostRepository $postRepository): Response
     {
         $user = $this->getUser();
         $userMessage = $messageList->findBy(
@@ -91,12 +92,19 @@ final class UserController extends AbstractController
             10
         );
 
+        $userPosts = $postRepository->findBy(
+            ['user' => $user],
+            ['createdAt' => 'DESC'],
+            5
+        );
+
         $totalMessages = $messageList->count(['user' => $user]);
 
         return $this->render('user/profile.html.twig', [
             'user' => $user,
             'userMessage' => $userMessage,
             'totalMessages' => $totalMessages,
+            'userPosts' => $userPosts,
         ]);
     }
 
@@ -159,6 +167,12 @@ final class UserController extends AbstractController
         ]);
     }
 
+#[Route('/admin', name: 'app_admin', methods: ['GET'])]
+#[IsGranted('ROLE_ADMIN')]
+public function admin(): Response
+{
+    return $this->render('admin/index.html.twig');
+}
 
 }
 
