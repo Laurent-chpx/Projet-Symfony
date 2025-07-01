@@ -7,8 +7,14 @@ use App\Entity\Post;
 use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\File as FileConstraint;
+
 
 class PostForm extends AbstractType
 {
@@ -30,6 +36,7 @@ class PostForm extends AbstractType
                     'placeholder' => 'Écrivez votre message...'
                 ]
             ]);
+
             //Que lors de la modification
              if (!$options['is_edit']) {
                  $builder->add('board', EntityType::class, [
