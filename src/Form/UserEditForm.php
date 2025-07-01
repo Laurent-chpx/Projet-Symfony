@@ -2,18 +2,18 @@
 
 namespace App\Form;
 
+use App\Entity\Role;
 use App\Entity\User;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class UserRegistrationForm extends AbstractType
+class UserEditForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -21,7 +21,7 @@ class UserRegistrationForm extends AbstractType
             ->add('pseudo', TextType::class, [
                 'label' => 'Nom d\'utilisateur',
                 'attr' => [
-                    'class' => 'form-control',
+                    'class' => 'form-control mb-3',
                     'placeholder' => 'Entrez votre nom d\'utilisateur'
                 ],
                 'constraints' => [
@@ -37,7 +37,7 @@ class UserRegistrationForm extends AbstractType
             ->add('email', EmailType::class, [
                 'label' => 'Adresse email',
                 'attr' => [
-                    'class' => 'form-control',
+                    'class' => 'form-control mb-3',
                     'placeholder' => 'exemple@insider.fr'
                 ],
                 'constraints' => [
@@ -50,25 +50,6 @@ class UserRegistrationForm extends AbstractType
                     ])
                 ],
                 'help' => 'Utilisez une adresse @insider.fr, @collaborator.fr ou @external.fr'
-            ])
-            ->add('password', RepeatedType::class, [
-                'type' => PasswordType::class,
-                'invalid_message' => 'Les mots de passe doivent correspondre',
-                'first_options'  => [
-                    'label' => 'Mot de passe',
-                    'attr' => ['class' => 'form-control'],
-                ],
-                'second_options' => [
-                    'label' => 'Confirmation du mot de passe',
-                    'attr' => ['class' => 'form-control'],
-                ],
-                'constraints' => [
-                    new NotBlank(['message' => 'Veuillez remplir le mot de passe']),
-                    new Length([
-                        'min' => 6,
-                        'minMessage' => 'Le mot de passe doit faire au moins {{ limit }} caractères',
-                    ])
-                ]
             ]);
     }
 
