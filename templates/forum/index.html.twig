@@ -1,7 +1,66 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ForumController!{% endblock %}
+{% block title %}Accueil{% endblock %}
 
 {% block body %}
+<div class="container">
+    <h1>Bienvenue sur le Forum</h1>
+    <section class="recents-posts">
+        <div class="flex justify-content-between align-items-center mb-3">
+            <h2>Board récents</h2>
+        </div>
 
+        {% for item in postsWithComments %}
+           {% set post = item.post %}
+           {% set comments = item.comments %}
+
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between">
+                <div>
+                    <h5 class="mb-1">
+                        <a href="{{ path('app_board_show', {'id': post.id}) }}"
+                           class="text-decoration-none">
+                            {{ post.title }}
+                        </a>
+                    </h5>
+                    <small class="text-muted">
+                        Par {{ post.user.pseudo }} dans {{ post.board.name }}
+                        le {{ post.createdAt|date('d/m/Y à H:i') }}
+                    </small>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="card-text">{{ post.content|slice(0, 200) }}{% if post.content|length > 200 %}...{% endif %}</p>
+
+                {% if comments|length > 0 %}
+                    <div class="mt-3">
+                        <h6>Derniers commentaires :</h6>
+                        {% for comment in comments %}
+                            <div class="border-start border-3 border-light ps-3 mb-2">
+                                <small class="text-muted">
+                                    <strong>{{ comment.user.pseudo }}</strong>
+                                    le {{ comment.createdAt|date('d/m/Y à H:i') }}
+                                </small>
+                                <p class="mb-1 small">
+                                    {{ comment.content|slice(0, 150) }}{% if comment.content|length > 150 %}...{% endif %}
+                                </p>
+                            </div>
+                        {% endfor %}
+
+                        {% if comments|length == 3 %}
+                            <small class="text-muted">
+                                <a href="{{ path('app_post_show', {'id': post.id}) }}">
+                                    Voir tous les commentaires
+                                </a>
+                            </small>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <small class="text-muted">Aucun commentaire pour le moment</small>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </section>
+</div>
 {% endblock %}

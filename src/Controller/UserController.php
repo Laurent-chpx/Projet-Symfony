@@ -83,22 +83,31 @@ final class UserController extends AbstractController
 
     #[Route('/profile', name: 'user_profile', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
-    public function profile(CommentRepository $messageList, PostRepository $postRepository): Response
+    public function profile(CommentRepository $commentRepository, PostRepository $postRepository): Response
     {
         $user = $this->getUser();
-        $userMessage = $messageList->findBy(
-            ['user' => $user],
-            ['createdAt' => 'DESC'],
-            10
-        );
+        $userMessage = $commentRepository->createQueryBuilder('c')
+            ->where('c.user = :user')
+            ->setParameter('user', $user)
+            ->orderBy('c.createdAt', 'DESC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult();
 
-        $userPosts = $postRepository->findBy(
-            ['user' => $user],
-            ['createdAt' => 'DESC'],
-            5
-        );
+        $userPosts = $postRepository->createQueryBuilder('p')
+            ->where('p.user = :user')
+            ->setParameter('user', $user)
+            ->orderBy('p.createdAt', 'DESC')
+            ->setMaxResults(5)
+            ->getQuery()
+            ->getResult();
 
-        $totalMessages = $messageList->count(['user' => $user]);
+        $totalMessages = $commentRepository->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
 
         return $this->render('user/profile.html.twig', [
             'user' => $user,
