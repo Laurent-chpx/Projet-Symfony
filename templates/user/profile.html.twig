@@ -110,7 +110,7 @@
                                                 </div>
                                                 <small class="text-muted">
                                                     {% if comment.post %}
-                                                        Sur le post : <strong>{{ comment.post.title }}</strong> —
+                                                        Sur le post : <strong><a href="{{ path('app_post_show', { id: comment.post.id }) }}">{{ comment.post.title }}</a></strong> —
                                                     {% endif %}
                                                     {{ comment.createdAt|date('d/m/Y H:i') }}
                                                 </small>

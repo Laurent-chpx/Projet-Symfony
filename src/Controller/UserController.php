@@ -2,11 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Category;
 use App\Entity\User;
 use App\Entity\Role;
 use App\Form\UserChangePassForm;
 use App\Form\UserRegistrationForm;
 use App\Form\UserEditForm;
+use App\Repository\CategoryRepository;
 use App\Repository\CommentRepository;
 use App\Repository\PostRepository;
 use App\Repository\RoleRepository;
@@ -34,6 +36,8 @@ final class UserController extends AbstractController
         $user = new User();
         $form =  $this->createForm(UserRegistrationForm::class, $user);
         $form->handleRequest($request);
+
+
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 /** @var string $password */
@@ -83,8 +87,10 @@ final class UserController extends AbstractController
 
     #[Route('/profile', name: 'user_profile', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
-    public function profile(CommentRepository $messageList, PostRepository $postRepository): Response
+    public function profile(CommentRepository $messageList, PostRepository $postRepository, CategoryRepository $categoryRepository): Response
     {
+        $categories = $categoryRepository->findAll();
+
         $user = $this->getUser();
         $userMessage = $messageList->findBy(
             ['user' => $user],
@@ -105,6 +111,7 @@ final class UserController extends AbstractController
             'userMessage' => $userMessage,
             'totalMessages' => $totalMessages,
             'userPosts' => $userPosts,
+            'categories' => $categories,
         ]);
     }
 
@@ -164,6 +171,25 @@ final class UserController extends AbstractController
         }
         return $this->render('user/change_password.html.twig', [
             'form' => $form,
+        ]);
+    }
+
+    #[Route('/profile/posts', name: 'user_posts', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function userPosts(PostRepository $postRepository, CategoryRepository $categoryRepository): Response
+    {
+        $categories = $categoryRepository->findAll();
+
+        $user = $this->getUser();
+
+        $userPosts = $postRepository->findBy(
+            ['user' => $user],
+            ['createdAt' => 'DESC']
+        );
+        return $this->render('user/posts.html.twig', [
+            'user' => $user,
+            'userPosts' => $userPosts,
+            'categories' => $categories,
         ]);
     }
 

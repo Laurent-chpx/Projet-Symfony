@@ -34,19 +34,53 @@ class PostForm extends AbstractType
                     'class' => 'form-control',
                     'rows' => 8,
                     'placeholder' => 'Écrivez votre message...'
-                ]
+                    ]
+                ])
+
+            ->add('board', EntityType::class, [
+                'class' => Board::class,
+                'choice_label' => 'name',
+                'label' => 'Forum',
+                'attr' => ['class' => 'form-select'],
+                'placeholder' => 'Choisissez un forum...',
+                'group_by' => function (Board $board) {
+                    $categories = $board->getCategory(); // méthode ManyToMany
+                    if ($categories->isEmpty()) {
+                        return 'Sans catégorie';
+                    }
+                    return $categories->first()->getName();
+                }
             ]);
 
-            //Que lors de la modification
-             if (!$options['is_edit']) {
-                 $builder->add('board', EntityType::class, [
-                     'class' => Board::class,
-                     'choice_label' => 'name',
-                     'label' => 'Forum',
-                     'attr' => ['class' => 'form-select'],
-                     'placeholder' => 'Choisissez un forum...'
-                 ]);
-             }
+        // Que lors de la création, pas à la modification
+        if (!$options['is_edit']) {
+            $builder->add('board', EntityType::class, [
+                'class' => Board::class,
+                'choice_label' => 'name',
+                'label' => 'Forum',
+                'attr' => ['class' => 'form-select'],
+                'placeholder' => 'Choisissez un forum...',
+                'group_by' => function(Board $board) {
+                    $categories = $board->getCategory();
+                    if ($categories->isEmpty()) {
+                        return 'Sans catégorie';
+                    }
+                    // Prend le nom de la première catégorie
+                    return $categories->first()->getName();
+                },
+            ]);
+        }
+
+        //Que lors de la modification
+        if (!$options['is_edit']) {
+            $builder->add('board', EntityType::class, [
+                'class' => Board::class,
+                'choice_label' => 'name',
+                'label' => 'Forum',
+                'attr' => ['class' => 'form-select'],
+                'placeholder' => 'Choisissez un forum...'
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
