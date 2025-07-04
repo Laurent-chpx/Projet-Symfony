@@ -14,12 +14,14 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\File as FileConstraint;
+use function Symfony\Component\String\b;
 
 
 class PostForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $user = $options['user'] ?? null;
         $builder
             ->add('title', TextType::class, [
                 'label' => 'Titre du sujet',
@@ -56,31 +58,15 @@ class PostForm extends AbstractType
         if (!$options['is_edit']) {
             $builder->add('board', EntityType::class, [
                 'class' => Board::class,
+                'choices' => $options['authorized_boards'],
                 'choice_label' => 'name',
                 'label' => 'Forum',
                 'attr' => ['class' => 'form-select'],
                 'placeholder' => 'Choisissez un forum...',
-                'group_by' => function(Board $board) {
-                    $categories = $board->getCategory();
-                    if ($categories->isEmpty()) {
-                        return 'Sans catégorie';
-                    }
-                    // Prend le nom de la première catégorie
-                    return $categories->first()->getName();
-                },
+
             ]);
         }
 
-        //Que lors de la modification
-        if (!$options['is_edit']) {
-            $builder->add('board', EntityType::class, [
-                'class' => Board::class,
-                'choice_label' => 'name',
-                'label' => 'Forum',
-                'attr' => ['class' => 'form-select'],
-                'placeholder' => 'Choisissez un forum...'
-            ]);
-        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -88,6 +74,9 @@ class PostForm extends AbstractType
         $resolver->setDefaults([
             'data_class' => Post::class,
             'is_edit' => false,
+            'authorized_boards' => [],
+            'user' => null,
         ]);
+
     }
 }

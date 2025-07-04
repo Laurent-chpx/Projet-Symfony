@@ -189,7 +189,7 @@ final class ForumController extends AbstractController
     }
 
     #[Route('/forum/post/create', name: 'app_post_create')]
-    public function createPosts(Request $request, EntityManagerInterface $em, CategoryRepository $categoryRepository): Response
+    public function createPosts(Request $request, EntityManagerInterface $em, CategoryRepository $categoryRepository, BoardRepository $boardRepository): Response
     {
         $user = $this->getUser();
 
@@ -200,8 +200,12 @@ final class ForumController extends AbstractController
             $categories = $categoryRepository->findAuthorizedCategory(null);
         }
 
+        $authorizedBoards = $boardRepository->findAuthorizedBoard($roleId);
+
         $post = new Post();
-        $form = $this->createForm(PostForm::class, $post);
+        $form = $this->createForm(PostForm::class, $post, [
+            'authorized_boards' => $authorizedBoards
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

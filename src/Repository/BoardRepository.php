@@ -16,6 +16,23 @@ class BoardRepository extends ServiceEntityRepository
         parent::__construct($registry, Board::class);
     }
 
+    public function findAuthorizedBoard(?int $roleId): array
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->innerJoin('App\Entity\Permission', 'p', 'WITH', 'p.entity_id = c.id AND p.entity_type = :type')
+            ->setParameter('type', 'board');
+
+        if ($roleId !== null) {
+            $qb->andWhere('p.role_id = :roleId')
+                ->setParameter('roleId', $roleId);
+        } else {
+            $qb->andWhere('p.role_id IS NULL');
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+
     //    /**
     //     * @return Board[] Returns an array of Board objects
     //     */
