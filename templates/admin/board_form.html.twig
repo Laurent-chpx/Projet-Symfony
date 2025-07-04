@@ -20,7 +20,16 @@
                         <div class="mb-4">
                             {{ form_label(form.category) }}
                             <div class="border rounded p-3 bg-light">
-                                {{ form_widget(form.category) }}
+                                <div class="row">
+                                    {% for choice in form.category %}
+                                        <div class="col-md-6 mb-2">
+                                            <div class="form-check">
+                                                {{ form_widget(choice, {'attr': {'class': 'form-check-input'}}) }}
+                                                {{ form_label(choice, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
                             </div>
                             <div class="form-text">{{ form_help(form.category) }}</div>
                         </div>
@@ -28,7 +37,16 @@
                         <div class="mb-4">
                             {{ form_label(form.allowedRoles) }}
                             <div class="border rounded p-3 bg-light">
-                                {{ form_widget(form.allowedRoles) }}
+                                <div class="row">
+                                    {% for choice in form.allowedRoles %}
+                                        <div class="col-md-6 mb-2">
+                                            <div class="form-check">
+                                                {{ form_widget(choice, {'attr': {'class': 'form-check-input'}}) }}
+                                                {{ form_label(choice, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
                             </div>
                             <div class="form-text">{{ form_help(form.allowedRoles) }}</div>
                         </div>

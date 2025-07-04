@@ -21,11 +21,6 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 d-flex justify-content-end align-items-start">
-                {% if is_granted('ROLE_ADMIN') %}
-                    <a href="{{ path('app_admin') }}" class="btn btn-danger">Administration</a>
-                {% endif %}
-            </div>
         </div>
 
         <div class="row">
