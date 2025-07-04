@@ -12,10 +12,16 @@ class SecurityController extends AbstractController
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        // get the login error if there is one
+        if ($this->getUser()) {
+            // Vérifier si l'utilisateur connecté est bloqué
+            if ($this->getUser()->isBlocked()) {
+                $this->addFlash('error', 'Votre compte a été bloqué. Contactez un administrateur.');
+                return $this->redirectToRoute('app_logout');
+            }
+            return $this->redirectToRoute('app_home');
+        }
         $error = $authenticationUtils->getLastAuthenticationError();
 
-        // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('security/login.html.twig', [

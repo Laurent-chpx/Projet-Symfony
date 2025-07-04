@@ -24,9 +24,7 @@ class AuthentificationForm extends AbstractType
                     'class' => 'form-control',
                     'placeholder' => 'Votre mot de passe'
                 ]
-            ])
-
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
