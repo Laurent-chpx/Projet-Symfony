@@ -193,6 +193,26 @@ final class UserController extends AbstractController
         ]);
     }
 
+    #[Route('/profile/comments', name: 'user_comments', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function userComments(CommentRepository $messageList, CategoryRepository $categoryRepository): Response
+    {
+        $categories = $categoryRepository->findAll();
+
+        $user = $this->getUser();
+
+        $userMessage = $messageList->findBy(
+            ['user' => $user],
+            ['createdAt' => 'DESC'],
+        );
+
+        return $this->render('user/comments.html.twig', [
+            'user' => $user,
+            'userMessage' => $userMessage,
+            'categories' => $categories,
+        ]);
+    }
+
     #[Route('/admin', name: 'app_admin', methods: ['GET'])]
     #[IsGranted('ROLE_ADMIN')]
     public function admin(): Response
