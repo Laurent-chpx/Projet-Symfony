@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des boards{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">
+                    Gestion des boards
+                </h1>
+
+                <div class="mb-3">
+                    <a href="{{ path('app_admin') }}" class="btn btn-secondary">
+                        Retour à l'administration
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Liste des boards ({{ boardsWithPermissions|length }})</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if boardsWithPermissions|length > 0 %}
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Catégories</th>
+                                        <th>Nombre de posts</th>
+                                        <th>Rôles autorisés</th>
+                                        <th class="text-center">Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for item in boardsWithPermissions %}
+                                        {% set board = item.board %}
+                                        <tr>
+                                            <td><strong>{{ board.name }}</strong></td>
+                                            <td>
+                                                {% if board.category|length > 0 %}
+                                                    {% for category in board.category %}
+                                                        <span class="badge bg-secondary me-1">{{ category.name }}</span>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <span class="text-muted">Aucune catégorie</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                    <span class="badge bg-info">
+                                                        {{ board.posts|length }} posts
+                                                    </span>
+                                            </td>
+                                            <td>
+                                                {% if item.roleNames|length > 0 %}
+                                                    {% for roleName in item.roleNames %}
+                                                        <span class="badge bg-primary me-1">{{ roleName }}</span>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <span class="badge bg-warning">Aucun rôle défini</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group" role="group">
+                                                    <a href="{{ path('admin_board_edit', {id: board.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                        Modifier
+                                                    </a>
+
+                                                    <form method="post" action="{{ path('admin_board_delete', {id: board.id}) }}" class="d-inline">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_board' ~ board.id) }}">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('️Cette action est IRRÉVERSIBLE.\n\nÊtes-vous absolument sûr de vouloir continuer ?')">
+                                                            Supprimer
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
