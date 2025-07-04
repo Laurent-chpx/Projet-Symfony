@@ -16,6 +16,24 @@ class CategoryRepository extends ServiceEntityRepository
         parent::__construct($registry, Category::class);
     }
 
+    public function findAuthorizedCategory(?int $roleId): array
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->innerJoin('App\Entity\Permission', 'p', 'WITH', 'p.entity_id = c.id AND p.entity_type = :type')
+            ->setParameter('type', 'category');
+
+        if ($roleId !== null) {
+            $qb->andWhere('p.role_id = :roleId')
+                ->setParameter('roleId', $roleId);
+        } else {
+            $qb->andWhere('p.role_id IS NULL');
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+
+
 //    /**
 //     * @return Category[] Returns an array of Category objects
 //     */

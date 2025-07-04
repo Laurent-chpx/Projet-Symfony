@@ -34,6 +34,8 @@ final class UserController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
+        $categories = $entityManager->getRepository(Category::class)->findAll();
+
         $user = new User();
         $form =  $this->createForm(UserRegistrationForm::class, $user);
         $form->handleRequest($request);
@@ -178,6 +180,26 @@ final class UserController extends AbstractController
         return $this->render('user/posts.html.twig', [
             'user' => $user,
             'userPosts' => $userPosts,
+            'categories' => $categories,
+        ]);
+    }
+
+    #[Route('/profile/comments', name: 'user_comments', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function userComments(CommentRepository $messageList, CategoryRepository $categoryRepository): Response
+    {
+        $categories = $categoryRepository->findAll();
+
+        $user = $this->getUser();
+
+        $userMessage = $messageList->findBy(
+            ['user' => $user],
+            ['createdAt' => 'DESC'],
+        );
+
+        return $this->render('user/comments.html.twig', [
+            'user' => $user,
+            'userMessage' => $userMessage,
             'categories' => $categories,
         ]);
     }

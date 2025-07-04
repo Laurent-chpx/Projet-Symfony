@@ -38,9 +38,10 @@
                 {{ comment.content }}
             </p>
             {% for file in comment.files %}
+                <i class="bi bi-file-earmark-pdf-fill text-danger ms-2"></i>
                 <a href="{{ asset('uploads/' ~ file.nameHashed) }}" target="_blank">
                     {{ file.nameOriginal }}
-                </a>
+                </a><br />
             {% endfor %}
                 </div>
         {% endfor %}

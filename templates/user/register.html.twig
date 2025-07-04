@@ -3,18 +3,21 @@
 {% block title %}Inscription{% endblock %}
 
 {% block body %}
-    <div class="container">
-        <h1>Inscription</h1>
+        <div class="d-flex flex-column align-items-center" style="width: 50vw; min-width: 320px;">
+            <h1 class="mb-4 text-center">Inscription</h1>
 
-        {{ form_errors(UserRegistrationForm) }}
+            {{ form_start(UserRegistrationForm) }}
 
-        {{ form_start(UserRegistrationForm) }}
-        {{ form_row(UserRegistrationForm.pseudo) }}
-        {{ form_row(UserRegistrationForm.email) }}
-        {{ form_row(UserRegistrationForm.password, {
-            label: 'Mot de passe'
-        }) }}
-        <button type="submit" class="btn btn-primary">S'inscrire</button>
-        {{ form_end(UserRegistrationForm) }}
-    </div>
+            {{ form_row(UserRegistrationForm.pseudo) }}
+            {{ form_row(UserRegistrationForm.email) }}
+            {{ form_row(UserRegistrationForm.password, {
+                label: 'Mot de passe'
+            }) }}
+
+            <div class="d-flex justify-content-center mt-4">
+                <button type="submit" class="btn btn-primary px-4">S'inscrire</button>
+            </div>
+
+            {{ form_end(UserRegistrationForm) }}
+        </div>
 {% endblock %}
