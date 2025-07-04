@@ -3,32 +3,43 @@
 {% block title %}Accueil{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="mb-0">📰 Derniers sujets</h1>
-            <a href="{{ path('app_post_create') }}" class="btn btn-primary">Créer un nouveau sujet</a>
-        </div>
-
-        {% if posts is not empty %}
-            <div class="row row-cols-1 row-cols-md-2 g-4">
-                {% for post in posts %}
-                    <div class="col">
-                        <div class="card shadow-sm h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ post.title }}</h5>
-                                <p class="card-text">{{ post.content|striptags|slice(0, 150) ~ '...' }}</p>
-                            </div>
-                            <div class="card-footer d-flex justify-content-between align-items-center">
-                                <small class="text-muted">Par {{ post.user.pseudo }} – le {{ post.createdAt|date('d/m/Y H:i') }}</small>
-                                <a href="{{ path('app_post_show', { id: post.id }) }}" class="btn btn-sm btn-primary">Lire</a>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
+    {% if app.user %}
+        <div class="container mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">📰 Derniers sujets</h1>
+                <a href="{{ path('app_post_create') }}" class="btn btn-primary">Créer un nouveau sujet</a>
             </div>
 
-        {% else %}
-            <div class="alert alert-info">Aucun post à afficher pour le moment.</div>
-        {% endif %}
-    </div>
+            {% if posts is not empty %}
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    {% for post in posts %}
+                        <div class="col">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ post.title }}</h5>
+                                    <p class="card-text">{{ post.content|striptags|slice(0, 150) ~ '...' }}</p>
+                                </div>
+                                <div class="card-footer d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">Par {{ post.user.pseudo }} – le {{ post.createdAt|date('d/m/Y H:i') }}</small>
+                                    <a href="{{ path('app_post_show', { id: post.id }) }}" class="btn btn-sm btn-primary">Lire</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">Aucun post à afficher pour le moment.</div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="d-flex justify-content-center align-items-center vh-100">
+            <div class="text-center w-100">
+                <div class="alert alert-warning mx-auto" style="max-width: 500px;">
+                    <h4 class="alert-heading mb-3">Bienvenue ! 👋</h4>
+                    <p class="mb-0">Connectez-vous pour accéder aux derniers sujets du forum.</p>
+                </div>
+                <a href="{{ path('app_login') }}" class="btn btn-primary mt-3">Se connecter</a>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}

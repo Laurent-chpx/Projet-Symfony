@@ -33,6 +33,8 @@ final class UserController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
+        $categories = $entityManager->getRepository(Category::class)->findAll();
+
         $user = new User();
         $form =  $this->createForm(UserRegistrationForm::class, $user);
         $form->handleRequest($request);
@@ -58,6 +60,7 @@ final class UserController extends AbstractController
         }
         return $this->render('user/register.html.twig', [
             'UserRegistrationForm' => $form,
+            'categories' => $categories,
         ]);
     }
 

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Category;
 use App\Entity\Comment;
 use App\Entity\File;
+use App\Entity\Permission;
 use App\Entity\Post;
 use App\Form\CommentForm;
 use App\Form\PostForm;
@@ -22,8 +23,9 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ForumController extends AbstractController
 {
     #[Route('/forum', name: 'app_home')]
-    public function index(EntityManagerInterface $entityManager): Response
+    public function index(EntityManagerInterface $entityManager, CategoryRepository $categoryRepository): Response
     {
+        // Récupération des 5 posts les plus récents
         $latestPosts = $entityManager->getRepository(Post::class)
             ->createQueryBuilder('p')
             ->leftJoin('p.user', 'u')
@@ -33,14 +35,25 @@ final class ForumController extends AbstractController
             ->getQuery()
             ->getResult();
 
-        $categories = $entityManager->getRepository(Category::class)->findAll();
+        $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
+
 
         return $this->render('forum/index.html.twig', [
             'posts' => $latestPosts,
             'categories' => $categories,
+            'user' => $user,
         ]);
     }
 
+
+    // Affichage des boards par catégorie selon l'id de la catégorie dans l'URL
     #[Route('/forum/categories/{id}', name: 'app_categories')]
     public function categories(int $id, CategoryRepository $repository): Response
     {
@@ -60,6 +73,7 @@ final class ForumController extends AbstractController
         ]);
     }
 
+    // Affichage de tous les posts d'un board
     #[Route('/forum/boards/{id}', name: 'app_board_show')]
     public function boards(int $id, PostRepository $postRepository, EntityManagerInterface $entityManager): Response
     {
@@ -83,6 +97,8 @@ final class ForumController extends AbstractController
         ]);
     }
 
+    // Affichage d'un post avec ses commentaires, le nom des utilisateurs ayant commenté et la date des commentaires
+    // Formulaire de commentaire également présent, avec la possibilité d'ajouter une ou plusieurs pièces jointes (optionnel)
     #[Route('/forum/post/{id}', name: 'app_post_show', requirements: ['id' => '\d+'])]
     public function posts(int $id, Request $request, EntityManagerInterface $entityManager): Response
     {
