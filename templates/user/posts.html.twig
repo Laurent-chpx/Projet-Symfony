@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon compte{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h5 class="mb-3">Informations personnelles</h5>
+
+            <div class="row mb-3">
+                <div class="col-sm-4 fw-bold">Pseudonyme :</div>
+                <div class="col-sm-8">{{ user.pseudo }}</div>
+            </div>
+            <hr class="my-4">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h5 class="mb-3">Tous mes posts</h5>
+                    {% for post in userPosts %}
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <a href="#" class="text-decoration-none text-dark post-toggle" data-bs-toggle="collapse" data-bs-target="#post-{{ post.id }}" aria-expanded="false">
+                                    {{ post.title }}
+                                </a>
+                            </h6>
+                            <p class="mb-2 text-muted small">
+                                Publié le {{ post.createdAt|date('d/m/Y H:i') }}
+                            </p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

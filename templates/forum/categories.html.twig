@@ -1,25 +1,31 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Catégories{% endblock %}
+{% block title %}Catégorie : {{ category.name }}{% endblock %}
 
 {% block body %}
-    <div class="container">
-        {% for category in categories %}
-            <h2 class="mt-5 mb-3">{{ category.name }}</h2>
-            <div class="row row-cols-1 row-cols-md-3 g-4">
-                {% for board in category.boards %}
+    <div class="container mt-4">
+        <h1 class="mb-4">📁 Boards liés à la catégorie : <strong>{{ category.name }}</strong></h1>
+
+        {% if boards is not empty %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for board in boards %}
                     <div class="col">
-                        <div class="card h-100">
+                        <div class="card h-100 shadow-sm">
                             <div class="card-body">
                                 <h5 class="card-title">{{ board.name }}</h5>
-                                <p class="card-text">Quelques infos sur ce board…</p>
-                                <a href="{{ path('app_board_show', {id: board.id}) }}" class="btn btn-sm btn-primary">Voir</a>
+                                <p class="card-text text-muted">
+                                    {{ board.description|default('Aucune description disponible.') }}
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent border-top-0">
+                                <a href="{{ path('app_board_show', { id: board.id }) }}" class="btn btn-outline-primary w-100">Voir ce board</a>
                             </div>
                         </div>
                     </div>
                 {% endfor %}
             </div>
-        {% endfor %}
+        {% else %}
+            <div class="alert alert-info">Aucun board associé à cette catégorie.</div>
+        {% endif %}
     </div>
-
 {% endblock %}

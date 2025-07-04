@@ -14,39 +14,10 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ForumController extends AbstractController
 {
     #[Route('/forum', name: 'app_home')]
-    public function index( PostRepository $postRepository, CommentRepository $commentRepository): Response
+    public function index(): Response
     {
-        $recentPosts = $postRepository->createQueryBuilder('p')
-            ->leftJoin('p.user', 'u')
-            ->leftJoin('p.board', 'b')
-            ->addSelect('u', 'b')
-            ->orderBy('p.id', 'DESC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult();
-
-            $postsWithComments = [];
-            foreach ($recentPosts as $post) {
-                $recentComments = $commentRepository->createQueryBuilder('c')
-                ->leftJoin('c.user', 'u')
-                ->addSelect('u')
-                ->where('c.post = :post')
-                ->setParameter('post', $post)
-                ->orderBy('c.id', 'DESC')
-                ->setMaxResults(3)
-                ->getQuery()
-                ->getResult();
-
-                $postsWithComments[] = [
-                    'post' => $post,
-                    'comments' => $recentComments
-                ];
-
-            }
-
         return $this->render('forum/index.html.twig', [
             'controller_name' => 'ForumController',
-            'postsWithComments' => $postsWithComments,
         ]);
     }
 

@@ -29,6 +29,7 @@ class CommentForm extends AbstractType
             ->add('files', FileType::class, [
                 'label' => 'Fichiers joints (optionnel)',
                 'multiple' => true,
+                'mapped' => false,
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
@@ -47,6 +48,7 @@ class CommentForm extends AbstractType
                                     'application/msword',
                                     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                                     'text/plain',
+                                    'mimeTypesMessage' => 'Fichier trop volumineux.',
                                 ],
                                 'mimeTypesMessage' => 'Veuillez télécharger un fichier valide (image, PDF, Word, txt)',
                             ]),
