@@ -44,7 +44,18 @@ class BoardAdminForm extends AbstractType
                 'multiple' => true,
                 'expanded' => true, // Cases à cocher
                 'required' => false,
-                'help' => 'Sélectionnez les catégories auxquelles ce board appartient.'
+                'help' => 'Sélectionnez les catégories auxquelles ce board appartient.',
+                'attr' => [
+                    'class' => 'form-check-container'
+                ],
+                'choice_attr' => function($choice, $key, $value) {
+                    return [
+                        'class' => 'form-check-input'
+                    ];
+                },
+                'label_attr' => [
+                    'class' => 'form-check-label'
+                ],
             ])
             ->add('allowedRoles', EntityType::class, [
                 'class' => Role::class,
@@ -54,7 +65,15 @@ class BoardAdminForm extends AbstractType
                 'expanded' => true, // Cases à cocher
                 'mapped' => false, // Non mappé car on gère nous-mêmes la relation
                 'required' => false,
-                'help' => 'Sélectionnez les rôles qui pourront voir ce board.'
+                'help' => 'Sélectionnez les rôles qui pourront voir ce board.',
+                'attr' => [
+                    'class' => 'row g-2'
+                ],
+                'choice_attr' => function($choice, $key, $value) {
+                    return [
+                        'class' => 'form-check-input'
+                    ];
+                },
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Enregistrer',

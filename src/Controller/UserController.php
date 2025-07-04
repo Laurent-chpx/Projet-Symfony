@@ -26,7 +26,7 @@ final class UserController extends AbstractController
         private EntityManagerInterface $entityManager
     ) {}
 
-    #[Route('/inscription', name: 'app_user')]
+    #[Route('/register', name: 'app_user')]
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
     {
         if ($this->getUser()) { //si connecté
