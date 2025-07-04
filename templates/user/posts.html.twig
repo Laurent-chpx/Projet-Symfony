@@ -12,7 +12,7 @@
                     <div class="card mb-3 shadow-sm">
                         <div class="card-body">
                             <h6 class="card-title">
-                                <a href="#" class="text-decoration-none text-dark post-toggle" data-bs-toggle="collapse" data-bs-target="#post-{{ post.id }}" aria-expanded="false">
+                                <a href="{{ path('app_post_show', { id: post.id }) }}" class="text-decoration-none text-dark">
                                     {{ post.title }}
                                 </a>
                             </h6>
