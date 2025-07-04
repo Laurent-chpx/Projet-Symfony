@@ -20,8 +20,10 @@
                                     <p class="card-text">{{ post.content|striptags|slice(0, 150) ~ '...' }}</p>
                                 </div>
                                 <div class="card-footer d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">Par {{ post.user.pseudo }} – le {{ post.createdAt|date('d/m/Y H:i') }}</small>
-                                    <a href="{{ path('app_post_show', { id: post.id }) }}" class="btn btn-sm btn-primary">Lire</a>
+                                    <small class="text-muted">Par {{ post.user.pseudo }} –
+                                        le {{ post.createdAt|date('d/m/Y H:i') }}</small>
+                                    <a href="{{ path('app_post_show', { id: post.id }) }}"
+                                       class="btn btn-sm btn-primary">Lire</a>
                                 </div>
                             </div>
                         </div>
@@ -32,13 +34,15 @@
             {% endif %}
         </div>
     {% else %}
-        <div class="d-flex justify-content-center align-items-center vh-100">
-            <div class="text-center w-100">
-                <div class="alert alert-warning mx-auto" style="max-width: 500px;">
-                    <h4 class="alert-heading mb-3">Bienvenue ! 👋</h4>
-                    <p class="mb-0">Connectez-vous pour accéder aux derniers sujets du forum.</p>
+        <div class="container-fluid">
+            <div class="d-flex justify-content-center align-items-center vh-100">
+                <div class="text-center w-100">
+                    <div class="alert alert-warning mx-auto" style="max-width: 500px;">
+                        <h4 class="alert-heading mb-3">Bienvenue ! 👋</h4>
+                        <p class="mb-0">Connectez-vous pour accéder aux derniers sujets du forum.</p>
+                    </div>
+                    <a href="{{ path('app_login') }}" class="btn btn-primary mt-3">Se connecter</a>
                 </div>
-                <a href="{{ path('app_login') }}" class="btn btn-primary mt-3">Se connecter</a>
             </div>
         </div>
     {% endif %}

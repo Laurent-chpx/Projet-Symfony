@@ -21,7 +21,7 @@ class UserRegistrationForm extends AbstractType
             ->add('pseudo', TextType::class, [
                 'label' => 'Nom d\'utilisateur',
                 'attr' => [
-                    'class' => 'form-control',
+                    'class' => 'form-control container-fluid d-flex justify-content-center align-items-center',
                     'placeholder' => 'Entrez votre nom d\'utilisateur'
                 ],
                 'constraints' => [
@@ -37,7 +37,7 @@ class UserRegistrationForm extends AbstractType
             ->add('email', EmailType::class, [
                 'label' => 'Adresse email',
                 'attr' => [
-                    'class' => 'form-control',
+                    'class' => 'form-control container-fluid d-flex justify-content-center align-items-center',
                     'placeholder' => 'exemple@insider.fr'
                 ],
                 'constraints' => [
@@ -56,7 +56,7 @@ class UserRegistrationForm extends AbstractType
                 'invalid_message' => 'Les mots de passe doivent correspondre',
                 'first_options'  => [
                     'label' => 'Mot de passe',
-                    'attr' => ['class' => 'form-control'],
+                    'attr' => ['class' => 'form-control container-fluid d-flex justify-content-center align-items-center'],
                 ],
                 'second_options' => [
                     'label' => 'Confirmation du mot de passe',
