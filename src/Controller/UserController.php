@@ -40,7 +40,6 @@ final class UserController extends AbstractController
 
 
         if ($form->isSubmitted() && $form->isValid()) {
-            try {
                 /** @var string $password */
                 $password = $form->get('password')->get('first')->getData();
                 $user->setPassword($userPasswordHasher->hashPassword($user, $password));
@@ -50,12 +49,9 @@ final class UserController extends AbstractController
                 $entityManager->persist($user);
                 $entityManager->flush();
 
-                $this->addFlash('success', 'Votre compte a été créé avec succès !');
                 return $this->redirectToRoute('app_login');
 
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Erreur lors de la création du compte : ' . $e->getMessage());
-            }
+
         }
         return $this->render('user/register.html.twig', [
             'UserRegistrationForm' => $form,
@@ -126,15 +122,11 @@ final class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            try {
 
                 $this->entityManager->flush();
-                $this->addFlash('success', 'Votre profil a été mis à jour avec succès.');
 
                 return $this->redirectToRoute('user_profile');
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur s\'est produite lors de la modification.');
-            }
+
         }
 
         return $this->render('user/edit.html.twig', [
@@ -153,23 +145,18 @@ final class UserController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $currentPassword = $form->get('currentPassword')->getData();
             if (!$userPasswordHasher->isPasswordValid($user, $currentPassword)) {
-                $this->addFlash('error', 'Le mot de passe actuel est incorrect.');
                 return $this->render('user/change_password.html.twig', [
                     'form' => $form,
                 ]);
             }
-            try {
                 $newPassword = $form->get('plainPassword')->get('first')->getData();
                 $hashedPassword = $userPasswordHasher->hashPassword($user, $newPassword);
                 $user->setPassword($hashedPassword);
 
                 $this->entityManager->flush();
-                $this->addFlash('success', 'Votre mot de passe a été modifié avec succès.');
 
                 return $this->redirectToRoute('user_profile');
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur s\'est produite lors du changement de mot de passe.');
-            }
+
         }
         return $this->render('user/change_password.html.twig', [
             'form' => $form,

@@ -52,9 +52,6 @@ class AdminController extends AbstractController
         $user->setBlocked(!$user->isBlocked());
         $this->entityManager->flush();
 
-        $status = $user->isBlocked() ? 'bloqué' : 'débloqué';
-        $this->addFlash('success', "L'utilisateur {$user->getPseudo()} a été {$status}.");
-
         return $this->redirectToRoute('admin_users');
     }
 
@@ -67,8 +64,6 @@ class AdminController extends AbstractController
 
         $user->setIdRole($role);
         $this->entityManager->flush();
-        $this->addFlash('success', "Le rôle de {$user->getPseudo()} a été modifié vers {$role->getName()}.");
-
         return $this->redirectToRoute('admin_users');
     }
 
@@ -115,7 +110,6 @@ class AdminController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            try{
                 $this->entityManager->persist($category);
                 $this->entityManager->flush();
 
@@ -143,11 +137,9 @@ class AdminController extends AbstractController
                 }
 
                 $this->entityManager->flush();
-                $this->addFlash('success', 'Catégorie créée avec succès.');
+
                 return $this->redirectToRoute('admin_categories');
-            }catch(\Exception $e){
-                $this->addFlash('error', 'Erreur lors de la création : ' . $e->getMessage());
-            }
+
         }
         return $this->render('admin/category_form.html.twig', [
             'form' => $form->createView(),
@@ -213,8 +205,6 @@ class AdminController extends AbstractController
             }
 
             $this->entityManager->flush();
-
-            $this->addFlash('success', 'Catégorie modifiée avec succès.');
             return $this->redirectToRoute('admin_categories');
         }
 
@@ -229,7 +219,7 @@ class AdminController extends AbstractController
     #[Route('/categories/{id}/delete', name: 'admin_category_delete', methods: ['POST'])]
     public function deleteCategory(Category $category, Request $request): Response
     {
-        try {
+
             // Supprimer les permissions associées
             $permissionRepository = $this->entityManager->getRepository(\App\Entity\Permission::class);
             $permissions = $permissionRepository->findByEntity('category', $category->getId());
@@ -242,10 +232,7 @@ class AdminController extends AbstractController
             $this->entityManager->remove($category);
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'Catégorie supprimée avec succès.');
-        } catch (\Exception $e) {
-            $this->addFlash('error', 'Erreur lors de la suppression de la catégorie.');
-        }
+
 
         return $this->redirectToRoute('admin_categories');
     }
@@ -294,7 +281,6 @@ class AdminController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            try{
                 $selectedCategories = $form->get('category')->getData();
                 $this->entityManager->persist($board);
                 $this->entityManager->flush();
@@ -320,11 +306,8 @@ class AdminController extends AbstractController
 
                 $this->entityManager->flush();
 
-                $this->addFlash('success', 'Board créée avec succès.');
                 return $this->redirectToRoute('admin_boards');
-            }catch(\Exception $e){
-                $this->addFlash('error', 'Erreur lors de la création : ' . $e->getMessage());
-            }
+
         }
         return $this->render('admin/board_form.html.twig', [
             'form' => $form->createView(),
@@ -368,7 +351,6 @@ class AdminController extends AbstractController
 
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'Board modifié avec succès.');
             return $this->redirectToRoute('admin_boards');
         }
 
@@ -383,7 +365,7 @@ class AdminController extends AbstractController
     #[Route('/boards/{id}/delete', name: 'admin_board_delete', methods: ['POST'])]
     public function deleteBoard(Board $board, Request $request): Response
     {
-        try {
+
             // Supprimer les permissions associées
             $permissionRepository = $this->entityManager->getRepository(\App\Entity\Permission::class);
             $permissions = $permissionRepository->findByEntity('board', $board->getId());
@@ -396,10 +378,6 @@ class AdminController extends AbstractController
             $this->entityManager->remove($board);
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'Board supprimée avec succès.');
-        } catch (\Exception $e) {
-            $this->addFlash('error', 'Erreur lors de la suppression du board.');
-        }
 
         return $this->redirectToRoute('admin_boards');
     }

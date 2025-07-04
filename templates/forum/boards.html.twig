@@ -8,11 +8,23 @@
                     {% for post in posts %}
                         <div class="card mb-4 shadow-sm w-100">
                             <div class="card-body">
-                                <h3 class="card-title">
-                                    <a href="{{ path('app_post_show', {id: post.id}) }}" class="text-decoration-none text-dark">
-                                        {{ post.title }}
-                                    </a>
-                                </h3>
+                                <div class="d-flex justify-content-between align-items-center ">
+                                    <h3 class="card-title">
+                                        <a href="{{ path('app_post_show', {id: post.id}) }}" class="text-decoration-none text-dark">
+                                            {{ post.title }}
+                                        </a>
+                                    </h3>
+                                    {% if is_granted('ROLE_ADMIN') %}
+                                        <div class="ms-3">
+                                            <a href="{{ path('app_post_delete', {id: post.id, boardId: post.board.id}) }}"
+                                               class="btn btn-danger btn-sm"
+                                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce post de {{ post.user.pseudo }} ? Tous les commentaires et fichiers associés seront également supprimés.')">
+                                                Supprimer 🗑️
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
                                 <p class="mb-2 text-muted">
                                     Par <strong>{{ post.user.pseudo }}</strong> —
                                     le {{ post.createdAt|date('d/m/Y H:i') }}
@@ -21,6 +33,7 @@
                       💬 {{ post.comments|length }} {{ post.comments|length == 1 ? 'message' : 'messages' }}
                     </span>
                 </div>
+
             </div>
 
         {% else %}

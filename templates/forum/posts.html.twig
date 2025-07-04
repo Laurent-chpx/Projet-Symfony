@@ -18,10 +18,22 @@
 
         {% for comment in post.comments %}
             <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
-            <p class="mb-2 text-muted">
-                Par <strong>{{ comment.user.pseudo }}</strong> —
-                le {{ comment.createdAt|date('d/m/Y H:i') }}
-            </p>
+                <div class="d-flex justify-content-between align-items-center ">
+                    <p class="mb-2 text-muted">
+                        Par <strong>{{ comment.user.pseudo }}</strong> —
+                        le {{ comment.createdAt|date('d/m/Y H:i') }}
+                    </p>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <div class="ms-3">
+                            <a href="{{ path('app_comment_delete', {id: comment.id, postId: post.id}) }}"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce commentaire de {{ comment.user.pseudo }} ?')">
+                             Supprimer  🗑️
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+
             <p class="mb-2 text-muted">
                 {{ comment.content }}
             </p>

@@ -175,4 +175,57 @@ final class ForumController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+
+    #[Route('/forum/comment/{id}/delete/{postId}', name: 'app_comment_delete', requirements: ['id' => '\d+', 'postId' => '\d+'])]
+    public function deleteComment(int $id, int $postId, EntityManagerInterface $entityManager): Response
+    {
+
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $comment = $entityManager->getRepository(Comment::class)->find($id);
+
+        if (!$comment) {
+            throw $this->createNotFoundException('Commentaire non trouvé.');
+        }
+
+        $files = $comment->getFiles();
+        foreach ($files as $file) {
+            $filePath = $this->getParameter('files_directory') . '/' . $file->getNameHashed();
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+            $entityManager->remove($file);
+        }
+
+        $entityManager->remove($comment);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_post_show', ['id' => $postId]);
+    }
+
+    #[Route('/forum/post/{id}/delete/{boardId}', name: 'app_post_delete', requirements: ['id' => '\d+', 'boardId' => '\d+'])]
+    public function deletePost(int $id, int $boardId, EntityManagerInterface $entityManager): Response
+    {
+        // Vérifier que l'utilisateur est administrateur
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $post = $entityManager->getRepository(Post::class)->find($id);
+        $comments = $post->getComments();
+        foreach ($comments as $comment) {
+            $files = $comment->getFiles();
+            foreach ($files as $file) {
+                $filePath = $this->getParameter('files_directory') . '/' . $file->getNameHashed();
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+                $entityManager->remove($file);
+            }
+            $entityManager->remove($comment);
+        }
+
+        $entityManager->remove($post);
+        $entityManager->flush();
+        return $this->redirectToRoute('app_board_show', ['id' => $boardId]);
+    }
 }
