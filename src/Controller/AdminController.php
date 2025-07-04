@@ -8,7 +8,6 @@ use App\Entity\Permission;
 use App\Entity\User;
 use App\Entity\Role;
 use App\Form\BoardAdminForm;
-use App\Form\CategoryForm;
 use App\Form\CategoryAdminForm;
 use App\Repository\CategoryRepository;
 use App\Repository\UserRepository;
