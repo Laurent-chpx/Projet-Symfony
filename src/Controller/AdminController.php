@@ -10,6 +10,7 @@ use App\Entity\Role;
 use App\Form\BoardAdminForm;
 use App\Form\CategoryForm;
 use App\Form\CategoryAdminForm;
+use App\Repository\CategoryRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,9 +35,16 @@ class AdminController extends AbstractController
     }
 
     #[Route('/users', name: 'admin_users')]
-    public function users(UserRepository $userRepository, EntityManagerInterface $entityManager): Response
+    public function users(UserRepository $userRepository, CategoryRepository $categoryRepository): Response
     {
-        $categories = $entityManager->getRepository(Category::class)->findAll();
+        $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
         $users = $userRepository->findAll();
 
         return $this->render('admin/users.html.twig', [
@@ -74,7 +82,14 @@ class AdminController extends AbstractController
         $permissionRepository = $this->entityManager->getRepository(\App\Entity\Permission::class);
         $roleRepository = $this->entityManager->getRepository(\App\Entity\Role::class);
 
-        $categories = $categoryRepository->findAll();
+        $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
 
         $categoriesWithPermissions = [];
         foreach ($categories as $category) {
@@ -102,9 +117,16 @@ class AdminController extends AbstractController
     }
 
     #[Route('/categories/new',  name: 'admin_category_new')]
-    public function NewCategory(Request $request, EntityManagerInterface $entityManager): Response
+    public function NewCategory(Request $request, CategoryRepository $categoryRepository): Response
     {
-        $categories = $entityManager->getRepository(Category::class)->findAll();
+        $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
         $category = new Category();
         $form = $this->createForm(CategoryAdminForm::class, $category);
         $form->handleRequest($request);
@@ -149,8 +171,16 @@ class AdminController extends AbstractController
     }
 
     #[Route('/categories/{id}/edit', name: 'admin_category_edit')]
-    public function editCategory(Category $category, Request $request): Response
+    public function editCategory(Category $category, Request $request, CategoryRepository $categoryRepository): Response
     {
+        $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
         $form = $this->createForm(CategoryAdminForm::class, $category);
         $permissionRepository = $this->entityManager->getRepository(Permission::class);
         $roleRepository = $this->entityManager->getRepository(Role::class);
@@ -212,7 +242,7 @@ class AdminController extends AbstractController
             'form' => $form->createView(),
             'title' => 'Modifier la catégorie',
             'category' => $category,
-            'categories' => $category,
+            'categories' => $categories,
         ]);
     }
 
@@ -239,9 +269,16 @@ class AdminController extends AbstractController
 
 
     #[Route('/boards', name: 'admin_boards')]
-    public function boards(EntityManagerInterface $entityManager): Response
+    public function boards(CategoryRepository $categoryRepository): Response
     {
-        $categories = $entityManager->getRepository(Category::class)->findAll();
+        $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
         $boardRepository = $this->entityManager->getRepository(Board::class);
         $permissionRepository = $this->entityManager->getRepository(Permission::class);
         $roleRepository = $this->entityManager->getRepository(Role::class);
@@ -273,9 +310,16 @@ class AdminController extends AbstractController
     }
 
     #[Route('/boards/new',  name: 'admin_board_new')]
-    public function NewBoard(Request $request, EntityManagerInterface $entityManager): Response
+    public function NewBoard(Request $request, CategoryRepository $categoryRepository): Response
     {
-        $categories = $entityManager->getRepository(Category::class)->findAll();
+        $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
         $board = new Board();
         $form = $this->createForm(BoardAdminForm::class, $board);
         $form->handleRequest($request);
@@ -317,9 +361,16 @@ class AdminController extends AbstractController
     }
 
     #[Route('/boards/{id}/edit', name: 'admin_board_edit')]
-    public function editBoard(Board $board, Request $request, EntityManagerInterface $entityManager): Response
+    public function editBoard(Board $board, Request $request, CategoryRepository $categoryRepository): Response
     {
-        $categories = $entityManager->getRepository(Category::class)->findAll();
+        $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
         $form = $this->createForm(BoardAdminForm::class, $board);
         $form->handleRequest($request);
 

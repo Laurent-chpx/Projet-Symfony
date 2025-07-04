@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Category;
+use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,9 +13,16 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class SecurityController extends AbstractController
 {
     #[Route(path: '/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils, EntityManagerInterface $entityManager): Response
+    public function login(AuthenticationUtils $authenticationUtils, CategoryRepository $categoryRepository): Response
     {
-        $categories = $entityManager->getRepository(Category::class)->findAll();
+        $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
         if ($this->getUser()) {
             // Vérifier si l'utilisateur connecté est bloqué
             if ($this->getUser()->isBlocked()) {

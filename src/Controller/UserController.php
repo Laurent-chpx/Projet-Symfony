@@ -27,14 +27,19 @@ final class UserController extends AbstractController
     ) {}
 
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
+    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager, CategoryRepository $categoryRepository): Response
     {
-        $categories = $entityManager->getRepository(Category::class)->findAll();
+        $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
         if ($this->getUser()) { //si connecté
             return $this->redirectToRoute('app_home');
         }
-
-        $categories = $entityManager->getRepository(Category::class)->findAll();
 
         $user = new User();
         $form =  $this->createForm(UserRegistrationForm::class, $user);
@@ -89,7 +94,14 @@ final class UserController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function profile(CommentRepository $messageList, PostRepository $postRepository, CategoryRepository $categoryRepository): Response
     {
-        $categories = $categoryRepository->findAll();
+        $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
 
         $user = $this->getUser();
         $userMessage = $messageList->findBy(
@@ -117,9 +129,17 @@ final class UserController extends AbstractController
 
     #[Route('/user-edit', name: 'user_edit', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
-    public function edit(Request $request): Response
+    public function edit(Request $request, CategoryRepository $categoryRepository): Response
     {
         $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
+
         $form = $this->createForm(UserEditForm::class, $user);
         $form->handleRequest($request);
 
@@ -134,14 +154,22 @@ final class UserController extends AbstractController
         return $this->render('user/edit.html.twig', [
             'form' => $form->createView(),
             'user' => $user,
+            'categories' => $categories,
         ]);
     }
 
     #[Route('/change-pass', name: 'user_change_password', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
-    public function changePassword(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager  ): Response
+    public function changePassword(Request $request, UserPasswordHasherInterface $userPasswordHasher, CategoryRepository $categoryRepository ): Response
     {
         $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
         $form = $this->createForm(UserChangePassForm::class, $user);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -162,6 +190,7 @@ final class UserController extends AbstractController
         }
         return $this->render('user/change_password.html.twig', [
             'form' => $form,
+            'categories' => $categories,
         ]);
     }
 
@@ -169,9 +198,14 @@ final class UserController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function userPosts(PostRepository $postRepository, CategoryRepository $categoryRepository): Response
     {
-        $categories = $categoryRepository->findAll();
-
         $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
 
         $userPosts = $postRepository->findBy(
             ['user' => $user],
@@ -188,9 +222,14 @@ final class UserController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function userComments(CommentRepository $messageList, CategoryRepository $categoryRepository): Response
     {
-        $categories = $categoryRepository->findAll();
-
         $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
 
         $userMessage = $messageList->findBy(
             ['user' => $user],
@@ -202,13 +241,6 @@ final class UserController extends AbstractController
             'userMessage' => $userMessage,
             'categories' => $categories,
         ]);
-    }
-
-    #[Route('/admin', name: 'app_admin', methods: ['GET'])]
-    #[IsGranted('ROLE_ADMIN')]
-    public function admin(): Response
-    {
-        return $this->render('admin/index.html.twig');
     }
 
 }

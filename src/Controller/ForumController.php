@@ -64,21 +64,26 @@ final class ForumController extends AbstractController
         }
 
         $boards = $category->getBoards();
-        $allCategories = $repository->findAll();
+
+        $user = $this->getUser();
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $repository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $repository->findAuthorizedCategory(null);
+        }
 
         return $this->render('forum/categories.html.twig', [
             'category' => $category,
             'boards' => $boards,
-            'categories' => $allCategories,
+            'categories' => $categories,
         ]);
     }
 
     // Affichage de tous les posts d'un board
     #[Route('/forum/boards/{id}', name: 'app_board_show')]
-    public function boards(int $id, PostRepository $postRepository, EntityManagerInterface $entityManager): Response
+    public function boards(int $id, PostRepository $postRepository, CategoryRepository $categoryRepository): Response
     {
-        $categories = $entityManager->getRepository(Category::class)->findAll();
-
         $posts = $postRepository->createQueryBuilder('p')
             ->leftJoin('p.board', 'b')
             ->addSelect('b')
@@ -88,6 +93,15 @@ final class ForumController extends AbstractController
             ->setParameter('id', $id)
             ->getQuery()
             ->getResult();
+
+        $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
 
 
         return $this->render('forum/boards.html.twig', [
@@ -100,9 +114,16 @@ final class ForumController extends AbstractController
     // Affichage d'un post avec ses commentaires, le nom des utilisateurs ayant commenté et la date des commentaires
     // Formulaire de commentaire également présent, avec la possibilité d'ajouter une ou plusieurs pièces jointes (optionnel)
     #[Route('/forum/post/{id}', name: 'app_post_show', requirements: ['id' => '\d+'])]
-    public function posts(int $id, Request $request, EntityManagerInterface $entityManager): Response
+    public function posts(int $id, Request $request, EntityManagerInterface $entityManager, CategoryRepository $categoryRepository): Response
     {
-        $categories = $entityManager->getRepository(Category::class)->findAll();
+        $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
 
         $posts = $entityManager->getRepository(Post::class)->createQueryBuilder('p')
             ->leftJoin('p.comments', 'c')
@@ -170,7 +191,14 @@ final class ForumController extends AbstractController
     #[Route('/forum/post/create', name: 'app_post_create')]
     public function createPosts(Request $request, EntityManagerInterface $em, CategoryRepository $categoryRepository): Response
     {
-        $categories = $categoryRepository->findAll();
+        $user = $this->getUser();
+
+        if ($user) {
+            $roleId = $user->getIdRole()?->getId();
+            $categories = $categoryRepository->findAuthorizedCategory($roleId);
+        } else {
+            $categories = $categoryRepository->findAuthorizedCategory(null);
+        }
 
         $post = new Post();
         $form = $this->createForm(PostForm::class, $post);
