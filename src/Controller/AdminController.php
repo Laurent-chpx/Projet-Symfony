@@ -26,22 +26,26 @@ class AdminController extends AbstractController
     #[Route('/', name: 'app_admin')]
     public function index(): Response
     {
+
         return $this->render('admin/index.html.twig');
     }
 
     #[Route('/users', name: 'admin_users')]
-    public function users(UserRepository $userRepository): Response
+    public function users(UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
+        $categories = $entityManager->getRepository(Category::class)->findAll();
         $users = $userRepository->findAll();
 
         return $this->render('admin/users.html.twig', [
             'users' => $users,
+            'categories' => $categories,
         ]);
     }
 
     #[Route('/users/{id}/toggle-block', name: 'admin_user_toggle_block', methods: ['POST'])]
     public function toggleUserBlock(User $user): Response
     {
+
         $user->setBlocked(!$user->isBlocked());
         $this->entityManager->flush();
 
@@ -87,6 +91,7 @@ class AdminController extends AbstractController
             }
 
             $categoriesWithPermissions[] = [
+                'categories' => $categories,
                 'category' => $category,
                 'permissions' => $permissions,
                 'roleNames' => $roleNames
@@ -94,6 +99,7 @@ class AdminController extends AbstractController
         }
         return $this->render('admin/categories.html.twig', [
             'categoriesWithPermissions' => $categoriesWithPermissions,
+            'categories' => $categories,
         ]);
     }
 
@@ -150,6 +156,7 @@ class AdminController extends AbstractController
             'form' => $form->createView(),
             'title' => 'Modifier la catégorie',
             'category' => $category,
+            'categories' => $category,
         ]);
     }
 
@@ -179,8 +186,9 @@ class AdminController extends AbstractController
 
 
     #[Route('/boards', name: 'admin_boards')]
-    public function boards(): Response
+    public function boards(EntityManagerInterface $entityManager): Response
     {
+        $categories = $entityManager->getRepository(Category::class)->findAll();
         $boardRepository = $this->entityManager->getRepository(Board::class);
         $permissionRepository = $this->entityManager->getRepository(Permission::class);
         $roleRepository = $this->entityManager->getRepository(Role::class);
@@ -207,12 +215,14 @@ class AdminController extends AbstractController
         }
         return $this->render('admin/boards.html.twig', [
             'boardsWithPermissions' => $boardsWithPermissions,
+            'categories' => $categories,
         ]);
     }
 
     #[Route('/boards/{id}/edit', name: 'admin_board_edit')]
-    public function editBoard(Board $board, Request $request): Response
+    public function editBoard(Board $board, Request $request, EntityManagerInterface $entityManager): Response
     {
+        $categories = $entityManager->getRepository(Category::class)->findAll();
         $form = $this->createForm(\App\Form\BoardAdminForm::class, $board);
 
         $permissionRepository = $this->entityManager->getRepository(Permission::class);
@@ -257,7 +267,8 @@ class AdminController extends AbstractController
         return $this->render('admin/board_form.html.twig', [
             'form' => $form->createView(),
             'title' => 'Modifier le board',
-            'board' => $board
+            'board' => $board,
+            'categories' => $categories,
         ]);
     }
 
