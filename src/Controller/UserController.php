@@ -26,9 +26,10 @@ final class UserController extends AbstractController
         private EntityManagerInterface $entityManager
     ) {}
 
-    #[Route('/register', name: 'app_user')]
+    #[Route('/register', name: 'app_register')]
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
     {
+        $categories = $entityManager->getRepository(Category::class)->findAll();
         if ($this->getUser()) { //si connecté
             return $this->redirectToRoute('app_home');
         }
@@ -58,6 +59,7 @@ final class UserController extends AbstractController
         }
         return $this->render('user/register.html.twig', [
             'UserRegistrationForm' => $form,
+            'categories' => $categories,
         ]);
     }
 

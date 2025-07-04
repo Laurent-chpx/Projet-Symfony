@@ -4,24 +4,25 @@
 
 {% block body %}
 
-    <div class="container my-5">
-        {% for post in posts %}
-            <div class="card mb-4 shadow-sm w-100">
-                <div class="card-body">
-                    <h3 class="card-title">
-                        <a href="{{ path('app_post_show', {id: post.id}) }}" class="text-decoration-none text-dark">
-                            {{ post.title }}
-                        </a>
-                    </h3>
-                    <p class="mb-2 text-muted">
-                        Par <strong>{{ post.user.pseudo }}</strong> —
-                        le {{ post.createdAt|date('d/m/Y H:i') }}
-                    </p>
-                    <span class="badge bg-secondary">
-          💬 {{ post.comments|length }} {{ post.comments|length == 1 ? 'message' : 'messages' }}
-        </span>
+                <div class="container my-5">
+                    {% for post in posts %}
+                        <div class="card mb-4 shadow-sm w-100">
+                            <div class="card-body">
+                                <h3 class="card-title">
+                                    <a href="{{ path('app_post_show', {id: post.id}) }}" class="text-decoration-none text-dark">
+                                        {{ post.title }}
+                                    </a>
+                                </h3>
+                                <p class="mb-2 text-muted">
+                                    Par <strong>{{ post.user.pseudo }}</strong> —
+                                    le {{ post.createdAt|date('d/m/Y H:i') }}
+                                </p>
+                                <span class="badge bg-secondary">
+                      💬 {{ post.comments|length }} {{ post.comments|length == 1 ? 'message' : 'messages' }}
+                    </span>
                 </div>
             </div>
+
         {% else %}
             <p>Aucun post trouvé.</p>
         {% endfor %}

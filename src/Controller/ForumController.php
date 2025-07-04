@@ -175,5 +175,4 @@ final class ForumController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
-
 }
