@@ -3,43 +3,68 @@
 namespace App\Controller;
 
 use App\Entity\Category;
+use App\Entity\Comment;
+use App\Entity\File;
+use App\Entity\Post;
+use App\Form\CommentForm;
+use App\Form\PostForm;
 use App\Repository\BoardRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\CommentRepository;
 use App\Repository\PostRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class ForumController extends AbstractController
 {
     #[Route('/forum', name: 'app_home')]
-    public function index(): Response
+    public function index(EntityManagerInterface $entityManager): Response
     {
-        return $this->render('forum/index.html.twig', [
-            'controller_name' => 'ForumController',
-        ]);
-    }
-
-    #[Route('/forum/categories', name: 'app_categories')]
-    public function categories(CategoryRepository $repository): Response
-    {
-
-        $categories = $repository->createQueryBuilder('c')
-            ->leftJoin('c.boards', 'b')
-            ->addSelect('b')
+        $latestPosts = $entityManager->getRepository(Post::class)
+            ->createQueryBuilder('p')
+            ->leftJoin('p.user', 'u')
+            ->addSelect('u')
+            ->orderBy('p.createdAt', 'DESC')
+            ->setMaxResults(5)
             ->getQuery()
             ->getResult();
 
-        return $this->render('forum/categories.html.twig', [
-            'controller_name' => 'ForumController',
+        $categories = $entityManager->getRepository(Category::class)->findAll();
+
+        return $this->render('forum/index.html.twig', [
+            'posts' => $latestPosts,
             'categories' => $categories,
         ]);
     }
 
-    #[Route('/forum/boards/{id}', name: 'app_board_show')]
-    public function boards(int $id, PostRepository $postRepository): Response
+    #[Route('/forum/categories/{id}', name: 'app_categories')]
+    public function categories(int $id, CategoryRepository $repository): Response
     {
+        $category = $repository->find($id);
+
+        if (!$category) {
+            throw $this->createNotFoundException('Catégorie non trouvée.');
+        }
+
+        $boards = $category->getBoards();
+        $allCategories = $repository->findAll();
+
+        return $this->render('forum/categories.html.twig', [
+            'category' => $category,
+            'boards' => $boards,
+            'categories' => $allCategories,
+        ]);
+    }
+
+    #[Route('/forum/boards/{id}', name: 'app_board_show')]
+    public function boards(int $id, PostRepository $postRepository, EntityManagerInterface $entityManager): Response
+    {
+        $categories = $entityManager->getRepository(Category::class)->findAll();
+
         $posts = $postRepository->createQueryBuilder('p')
             ->leftJoin('p.board', 'b')
             ->addSelect('b')
@@ -54,13 +79,16 @@ final class ForumController extends AbstractController
         return $this->render('forum/boards.html.twig', [
             'controller_name' => 'ForumController',
             'posts' => $posts,
+            'categories' => $categories,
         ]);
     }
 
-    #[Route('/forum/post/{id}', name: 'app_post_show')]
-    public function posts(int $id, PostRepository $postRepository): Response
+    #[Route('/forum/post/{id}', name: 'app_post_show', requirements: ['id' => '\d+'])]
+    public function posts(int $id, Request $request, EntityManagerInterface $entityManager): Response
     {
-        $posts = $postRepository->createQueryBuilder('p')
+        $categories = $entityManager->getRepository(Category::class)->findAll();
+
+        $posts = $entityManager->getRepository(Post::class)->createQueryBuilder('p')
             ->leftJoin('p.comments', 'c')
             ->addSelect('c')
             ->leftJoin('c.user', 'u')
@@ -70,9 +98,82 @@ final class ForumController extends AbstractController
             ->getQuery()
             ->getResult();
 
+        if (!$posts) {
+            throw $this->createNotFoundException('Post non trouvé');
+        }
+
+        $post = $posts[0];
+
+        $comment = new Comment();
+        $form = $this->createForm(CommentForm::class, $comment);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $comment->setUser($this->getUser());
+            $comment->setCreatedAt(new \DateTimeImmutable());
+            $comment->setPost($post);
+
+            $uploadedFiles = $form->get('files')->getData();
+
+            if ($uploadedFiles) {
+                foreach ($uploadedFiles as $uploadedFile) {
+                    if (!$uploadedFile instanceof UploadedFile) {
+                        continue;
+                    }
+
+                    $originalName = $uploadedFile->getClientOriginalName();
+
+                    $uploadedFile->move(
+                        $this->getParameter('files_directory'),
+                        $originalName
+                    );
+
+                    $fileEntity = new File();
+                    $fileEntity->setNameOriginal($originalName);
+                    $fileEntity->setNameHashed($originalName);
+                    $fileEntity->setComment($comment);
+
+                    $comment->addFile($fileEntity);
+                    $entityManager->persist($fileEntity);
+                }
+            }
+
+            $entityManager->persist($comment);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
+        }
+
         return $this->render('forum/posts.html.twig', [
-            'controller_name' => 'ForumController',
             'posts' => $posts,
+            'categories' => $categories,
+            'form' => $form->createView(),
         ]);
     }
+
+    #[Route('/forum/post/create', name: 'app_post_create')]
+    public function createPosts(Request $request, EntityManagerInterface $em, CategoryRepository $categoryRepository): Response
+    {
+        $categories = $categoryRepository->findAll();
+
+        $post = new Post();
+        $form = $this->createForm(PostForm::class, $post);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $post->setUser($this->getUser());
+            $post->setCreatedAt(new \DateTimeImmutable());
+
+            $em->persist($post);
+            $em->flush();
+
+            return $this->redirectToRoute('app_home');
+        }
+
+        return $this->render('forum/posts-create.html.twig', [
+            'categories' => $categories,
+            'form' => $form->createView(),
+        ]);
+    }
+
 }
